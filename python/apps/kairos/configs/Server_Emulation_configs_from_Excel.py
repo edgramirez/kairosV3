@@ -1,0 +1,65 @@
+{
+    "ac:17:c8:62:08:5b":
+    {
+        "source": "file:///home/aaeon/shopping_mall.mkv",
+        "services":
+        [
+            {
+                "maskDetection":
+                {
+                    "enabled": false
+                }
+            },
+            {
+                "socialDistancing":
+                {
+                    "toleratedDistance": 150.0,
+                    "persistence_time": 2.0,
+                    "enabled": false
+                }
+            },
+            {
+                "aforo":
+                {
+                    "enabled": true,
+                    "reference_line": {
+                        "line_coordinates": [[520, 700], [1120, 700]],
+                        "line_color": [123,123,220,100],
+                        "outside_area": 1
+                        },
+                    "max_capacity": 0,
+                    "area_of_interest": {
+                        "area_coordinates": [124,223,333,444],
+                        "area_of_interest_type": "horizontal"
+                        }
+                }
+            }
+        ]
+    },
+    "34:56:fe:a3:99:de":
+    {
+        "source": "rtsp://192.168.128.3:9000/live",
+        "services":
+        [
+            {
+                "socialDistancing":
+                {
+                    "toleratedDistance": 100.0,
+                    "persistenceTime": 2.0,
+                    "enabled": "False"
+                }
+            },
+            {
+            "aforo":
+                {
+                "enabled": "False",
+                "reference_line_coordinates": [[500, 720], [1100, 720]],
+                "max_capacity": 20,
+                "outside_area": 1,
+                "area_of_interest": [90,90,0,0],
+                "area_of_interest_type": "horizontal"
+                }
+            }
+        ]
+    }
+}
