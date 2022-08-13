@@ -113,3 +113,4 @@ Notes:
 As with DeepStream SDK, if the application runs into errors, cannot create gst elements, 
 try again after removing gstreamer cache
    rm ${HOME}/.cache/gstreamer-1.0/registry.x86_64.bin
+
