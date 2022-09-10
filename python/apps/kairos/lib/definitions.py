@@ -81,7 +81,7 @@ aforo = {
                 'line_color': 'list',
                 'outside_area': 'int',
                 'area_of_interest': 'list',
-                'area_of_interest_type': 'str',
+                'type': 'str',
                 'max_capacity': 'int'
                 }
             }
