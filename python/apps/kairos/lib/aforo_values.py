@@ -74,11 +74,11 @@ def validate_aforo_values(data):
             data.update({'referenceLine': referenceLine})
 
     if 'area_of_interest' in data.keys() and data['area_of_interest'] != '':
-        if 'area_of_interest_type' not in data.keys():
+        if 'type' not in data.keys():
             com.error_msg("Missing 'type' in 'area_of_interest' object")
 
-        if data['area_of_interest_type'] not in ['horizontal', 'parallel', 'fixed']:
-            com.error_msg("'type' object value must be 'horizontal', 'parallel' or 'fixed'")
+        if data['type'] not in ['line_inside_area', 'parallel', 'fixed']:
+            com.error_msg("'type' object value must be 'line_inside_area', 'parallel' or 'fixed'")
 
         up_down_left_right = data['area_of_interest'].replace(' ', '')
         up_down_left_right = up_down_left_right.split(',')
@@ -88,7 +88,7 @@ def validate_aforo_values(data):
         except Exception as e:
             com.error_msg("Exception: Unable to get up, down, left and right values... Exception: ".format(str(e)))
 
-        if data['area_of_interest_type'] == 'horizontal':
+        if data['type'] == 'line_inside_area':
             horizontal_keys = ['up', 'down', 'left', 'right']
             for param in horizontal_keys:
                 if param not in data['area_of_interest'].keys():
@@ -96,9 +96,9 @@ def validate_aforo_values(data):
         
                 if not isinstance(data['area_of_interest'][param], int) or data['area_of_interest'][param] < 0:
                     com.error_msg("{} value should be integer and positive".format(param))
-        elif data['area_of_interest_type'] == 'parallel':
+        elif data['type'] == 'parallel':
             print('type parallel not defined')
-        elif data['area_of_interest_type'] == 'fixed':
+        elif data['type'] == 'fixed':
             inner_keys = ['topx', 'topy', 'height', 'width']
             for param in inner_keys:
                 if param not in data['area_of_interest'].keys():
@@ -107,7 +107,7 @@ def validate_aforo_values(data):
                     com.error_msg("{} value should be integer and positive".format(param))
         
     if 'area_of_interest' in data.keys() and 'reference_line_coordinates' in data.keys() and \
-            data['area_of_interest_type'] == 'fixed':
+            data['type'] == 'fixed':
         com.error_msg("Incompatible parameters - reference_line is not needed when having area_of_interest type fixed")
 
     return data
