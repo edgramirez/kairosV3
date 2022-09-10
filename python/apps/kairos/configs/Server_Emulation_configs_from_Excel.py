@@ -1,7 +1,7 @@
 {
     "ac:17:c8:62:08:5b":
     {
-        "source": "file:///home/aaeon/shopping_mall.mkv",
+        "source": "file:///home/edgar/shopping_mall.mkv",
         "services":
         [
             {
@@ -29,8 +29,11 @@
                         },
                     "max_capacity": 0,
                     "area_of_interest": {
-                        "area_coordinates": [124,223,333,444],
-                        "area_of_interest_type": "horizontal"
+                        "padding_right": 50,
+                        "padding_left": 50,
+                        "padding_top": 50,
+                        "padding_bottom": 50,
+                        "type": "line_inside_area"
                         }
                 }
             }
