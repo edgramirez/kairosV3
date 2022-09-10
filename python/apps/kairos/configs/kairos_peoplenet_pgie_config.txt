@@ -67,9 +67,9 @@ net-scale-factor=0.0039215697906911373
 
 # Codifgo para uso del modelo peoplenet
 tlt-model-key=tlt_encode
+tlt-encoded-model=/home/edgar/github/kairosV3/python/apps/kairos/models/resnet34_peoplenet_pruned.etlt
+labelfile-path=/home/edgar/github/kairosV3/python/apps/kairos/models/labels.txt
 #tlt-encoded-model=/opt/nvidia/deepstream/deepstream-5.1/samples/models/tlt_pretrained_models/peoplenet/resnet34_peoplenet_pruned.etlt
-tlt-encoded-model=/home/aaeon/github/kairosDeep/python/apps/kairos/models/resnet34_peoplenet_pruned.etlt
-labelfile-path=/home/aaeon/github/kairosDeep/python/apps/kairos/models/labels.txt
 #model-engine-file=/opt/nvidia/deepstream/deepstream-5.1/samples/models/tlt_pretrained_models/peoplenet/resnet34_peoplenet_pruned.etlt_b1_gpu0_fp16.engine
 
 infer-dims=3;544;960
