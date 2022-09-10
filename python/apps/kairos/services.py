@@ -363,7 +363,6 @@ def people_counting(camera_id, total_objects):
 #    global aforo_url, srv_url
 #aforo_url = srv_url + 'tx/video-people.endpoint'
 
-
 def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, salidas, outside_area=None, reference_line=None, m=None, b=None, rectangle=None):
     '''
     A1 is the closest to the origin (0,0) and A2 is the area after the reference line
@@ -376,7 +375,6 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
     initial -  must be a dictionary, and will be used to store the first position (area 1 or area2) of a given ID
     last -     must be a dictionary, and will be used to store the last position (area 1 or area2) of a given ID
     '''
-
     if rectangle:
         # si el punto esta afuera del area de interes no evaluamos
         if box[0] < rectangle[0] or box[0] > rectangle[4] or box[1] > rectangle[5] and box[1] < rectangle[1]:
@@ -428,8 +426,8 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
             initial.update({item: 2})
 
             print('Sending Json of camera_id: ', camera_id, 'ID: ',item, 'Sal:0,Ent:1 = ', direction_1_to_2, "tiempo =",time_in_epoc)
-            x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
-            x.start()
+            #x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
+            #x.start()
 
             if direction_1_to_2 == 1:
                 entradas += 1
@@ -449,8 +447,8 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
             initial.update({item: 1})
 
             print('Sending Json of camera_id: ', camera_id, 'ID: ',item, 'Sal:0,Ent:1 = ', direction_2_to_1, "tiempo =",time_in_epoc)
-            x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
-            x.start()
+            #x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
+            #x.start()
 
             if direction_2_to_1 == 1:
                 entradas += 1
