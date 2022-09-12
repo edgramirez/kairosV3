@@ -23,16 +23,16 @@
                 {
                     "enabled": true,
                     "reference_line": {
-                        "line_coordinates": [[520, 700], [1120, 700]],
+                        "line_coordinates": [[720, 800], [1020, 500]],
                         "line_color": [123,123,220,100],
                         "outside_area": 1
                         },
                     "max_capacity": 0,
                     "area_of_interest": {
-                        "padding_right": 50,
-                        "padding_left": 50,
-                        "padding_top": 50,
-                        "padding_bottom": 50,
+                        "padding_right": 20,
+                        "padding_left": 20,
+                        "padding_top": 20,
+                        "padding_bottom": 20,
                         "type": "line_inside_area"
                         }
                 }
