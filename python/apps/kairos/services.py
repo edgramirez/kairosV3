@@ -279,31 +279,43 @@ def send_json(payload, action, url = None, **options):
 
 def check_if_object_is_in_area2(object_coordinates, reference_line, m, b):
     '''
-    # returns True if object is in Area2
-    # returns False if object is in Area1
+    * returns True if object is in Area2
+    * returns False if object is in Area1
     '''
+
+    #* si m es None la pendiente es infinita es decir recta vertical a 90 grados con respecto de la horizontal
+    #* si m es 0 recta a horizontal
     if m is None:
-        # object_coordinates[0] -  x
-        # reference_line[0][0]  -  x1
+        '''
+        # object_coordinates[0] ->  x
+        # reference_line[0][0]  ->  x1
         # if x > x1 then is in Area2, else in Area1
+        '''
         if object_coordinates[0] > reference_line[0][0]:
             return True
         return False
     elif m == 0:
+        '''
         # object_coordinates[1] -  y
         # reference_line[0][1]  -  y1
         # if y > y1 then is in Area2, else in Area1
+        '''
         if object_coordinates[1] > reference_line[0][1]:
             return True
         return False
     else:
-        #x1 = reference_line[0][0]
-        #y1 = reference_line[0][1]
-        #x = object_coordinates[0]
-        #m = ((y2 - y1) * 1.0) / (x2 -x1)
-        #y_overtheline = (m * (x - x1)) + y1
+        '''
+        # x1 = reference_line[0][0]
+        # y1 = reference_line[0][1]
+        # x = object_coordinates[0]
+        # m = ((y2 - y1) * 1.0) / (x2 -x1) ... multiply by 1.0 to force float division
+        # y_overtheline = (m * (x - x1)) + y1  ... general line ecuation
+        '''
+        print(m)
+        print(object_coordinates[0])
+        print(b)
+        quit()
         y_overtheline = (m * object_coordinates[0]) + b
-        #y_overtheline = (m * (object_coordinates[0] - reference_line[0][0])) + reference_line[0][1]
 
         #if y > y_overtheline:
         if object_coordinates[1] > y_overtheline:
