@@ -703,52 +703,6 @@ def get_social_distance_url():
     return social_distance_url
 
 
-'''
-def reading_server_config(header):
-    global scfg
-    # USANDO CONFIGURACION LOCAL PARA PRUEBAS - SIN SERVIDOR DE DASHBOARD
-    # server_url = get_dashboard_server()
-    scfg = service.get_server_info(header, server_url, abort_if_exception = False)
-
-    #forcing to read from local config file 
-    # TESTING CODE to force reading from file
-    scfg = False
-    if not scfg:
-        scfg = service.get_server_info_from_local_file("configs/Server_Emulation_configs_to_kairos.py")
-
-    scfg = service.get_config_filtered_by_active_service(scfg)
-
-    for camera_id in scfg.keys():
-        for service_name in scfg[camera_id]:
-            if service_name == 'video-people':
-                scfg = validate_aforo_values(scfg, camera_id, service_name)
-                set_aforo(camera_id, scfg[camera_id][service_name])
-                set_aforo_url(server_url)
-                set_initial_last_disappeared(camera_id)
-                source = scfg[camera_id][service_name]['source']
-                set_sources(camera_id, source)
-                activate_service = True
-            elif service_name == 'video-socialDistancing':
-                scfg = validate_socialdist_values(scfg[camera_id][service_name])
-                set_social_distance(camera_id, scfg[camera_id][service_name])
-                set_social_distance_url(server_url)
-                source = scfg[camera_id][service_name]['source']
-                activate_service = True
-            elif service_name == 'people_counting':
-                scfg = validate_people_counting_values(scfg[camera_id][service_name])
-                set_people_counting(camera_id, scfg[camera_id][service_name])
-                set_service_people_counting_url(server_url)
-                source = scfg[camera_id][service_name]['source']
-                activate_service = True
-            else:
-                continue
-
-        #    set_camera(srv_camera_service_id)
-
-    return True
-'''
-
-
 def tiler_src_pad_buffer_probe(pad, info, u_data):
     # Intiallizing object counter with 0.
     # version 2.1 solo personas
@@ -761,7 +715,6 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
     #PGIE_CLASS_ID_VEHICLE: 0,
     #PGIE_CLASS_ID_BICYCLE: 0,
     #PGIE_CLASS_ID_ROADSIGN: 0
-
     
     frame_number = 0
     num_rects = 0                      # numero de objetos en el frame
@@ -851,9 +804,6 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
             Height = aforo_info['area_of_interest']['area_rectangle'][3]
             x_plus_width = TopLeftx + Width
             y_plus_height = TopLefty + Height
-            #print(aforo_info)
-            #print(TopLeftx, TopLefty, Width, Height, x_plus_width, y_plus_height)
-            #quit()
 
             rectangle = [TopLeftx, TopLefty, Width, Height, x_plus_width, y_plus_height]
 
@@ -969,9 +919,6 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
             recuperarlo ya
             '''
             if frame_number > 0 and frame_number % 159997967 == 0:
-                print(frame_number)
-                print(frame_number % 159997967)
-                quit()
                 disappeared = get_disappeared(camera_id)
                 initial, last = get_initial_last(camera_id)
                 if disappeared:
