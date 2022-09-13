@@ -281,10 +281,9 @@ def check_if_object_is_in_area2(object_coordinates, reference_line, m, b):
     '''
     * returns True if object is in Area2
     * returns False if object is in Area1
+    * si m es None la pendiente es infinita es decir recta vertical a 90 grados con respecto de la horizontal
+    * si m es 0 recta a horizontal
     '''
-
-    #* si m es None la pendiente es infinita es decir recta vertical a 90 grados con respecto de la horizontal
-    #* si m es 0 recta a horizontal
     if m is None:
         '''
         # object_coordinates[0] ->  x
@@ -308,19 +307,34 @@ def check_if_object_is_in_area2(object_coordinates, reference_line, m, b):
         # x1 = reference_line[0][0]
         # y1 = reference_line[0][1]
         # x = object_coordinates[0]
-        # m = ((y2 - y1) * 1.0) / (x2 -x1) ... multiply by 1.0 to force float division
+        # m = ((y2 - y1) * 1.0) / (x2 - x1) ... multiply by 1.0 to force float division
         # y_overtheline = (m * (x - x1)) + y1  ... general line ecuation
-        '''
-        print(m)
-        print(object_coordinates[0])
-        print(b)
-        quit()
-        y_overtheline = (m * object_coordinates[0]) + b
 
-        #if y > y_overtheline:
+        *** in the video the y's values increses while going down
+        *** Are2 is always the higher values of y's after the reference line
+
+        -------------      ------------
+        | A1        /      |  \
+        |          /       |   \
+        | p=x,y   /        |    \   A1
+        |        /  A2     | A   \
+        |       /          |      \
+
+
+        Given a point p=x,y the "x" is evaluated in the line equation, if the calculated "y_overtheline" is lower than the "y" of
+        the point "p", then the point is down the line and so in A2 
+        '''
+        y_overtheline = (m * object_coordinates[0]) + b
+        '''
+        # if y > y_overtheline point is in Area2
+        ''' 
         if object_coordinates[1] > y_overtheline:
+            print("Area2")
+            quit()
             return True
         else:
+            print("Area2")
+            quit()
             return False
 
 
@@ -384,8 +398,8 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
     x = box[0]
     y = box[1]
 
-    initial -  must be a dictionary, and will be used to store the first position (area 1 or area2) of a given ID
-    last -     must be a dictionary, and will be used to store the last position (area 1 or area2) of a given ID
+    initial -  must be a dictionary, and will be used to store the first position (Area1 or Area2) of a given ID
+    last -     must be a dictionary, and will be used to store the last position (Area1 or Area2) of a given ID
     '''
     if rectangle:
         # si el punto esta afuera del area de interes no evaluamos
