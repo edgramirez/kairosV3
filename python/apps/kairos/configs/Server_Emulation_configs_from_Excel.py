@@ -23,7 +23,7 @@
                 {
                     "enabled": true,
                     "reference_line": {
-                        "line_coordinates": [[720, 800], [1020, 500]],
+                        "line_coordinates": [[1020, 500], [720, 800]],
                         "line_color": [123,123,220,100],
                         "outside_area": 1
                         },
