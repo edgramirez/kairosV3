@@ -1,6 +1,7 @@
 {
     "ac:17:c8:62:08:5b":
     {
+        "server_url": "https://unique_server_url/",
         "source": "file:///home/edgar/shopping_mall.mkv",
         "services":
         [
@@ -22,6 +23,7 @@
                 "aforo":
                 {
                     "enabled": true,
+                    "endpoint": "posts/aforo",
                     "reference_line": {
                         "line_coordinates": [[1020, 500], [720, 800]],
                         "line_color": [123,123,220,100],
