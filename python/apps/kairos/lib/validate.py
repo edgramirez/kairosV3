@@ -38,7 +38,7 @@ def validate_sources(active_service_configs):
 
 def check_obligatory_keys(service_dictionaries, service_definition):
     '''
-    Validate the configuration recovered from server provided the defined minimum parameters and their values are valid
+    Validate the configuration recovered from server provides the defined minimum parameters and their values are valid
     '''
     for defined_item in service_definition['obligatory'].keys():
         for service_name in service_dictionaries:
@@ -81,9 +81,13 @@ def check_service_against_definition(data):
 
     for camera_mac in data.keys():
         for srv_camera_id in data[camera_mac].keys():
+            if srv_camera_id == "server_url":
+                if not isinstance(data[camera_mac][srv_camera_id], str):
+                    com.log_error("parameter 'server_url' should be string")
+                continue
             if srv_camera_id == "source":
                 if not isinstance(data[camera_mac][srv_camera_id], str):
-                    com.log_error("source parameter should be string")
+                    com.log_error("parameter 'source' should be string")
                 continue
             for service_dict in data[camera_mac][srv_camera_id]:
                 for service_id in service_dict:
@@ -100,7 +104,7 @@ def check_service_against_definition(data):
 def validate_service_exists(data):
     for camera_mac in data.keys():
         for camera_service_id in data[camera_mac].keys():
-            if camera_service_id == "source":
+            if camera_service_id == "source" or camera_service_id == "server_url":
                 continue
             for service_item in data[camera_mac][camera_service_id]:
                 for service_id in service_item:
@@ -158,6 +162,7 @@ def get_config_filtered_by_active_service(config_data):
     for camera_mac in config_data.keys():
         if 'source' not in config_data[camera_mac]: continue
         if 'services' not in config_data[camera_mac]: continue
+        if 'server_url' not in config_data[camera_mac]: continue
         if len(config_data[camera_mac]['services']) == 0: continue
 
         for service_dict in config_data[camera_mac]['services']:
@@ -178,6 +183,7 @@ def get_config_filtered_by_active_service(config_data):
                         services.update({"services": service_list})
                         active_services.update({camera_mac: services})
                         active_services[camera_mac].update({"source": config_data[camera_mac]['source']})
+                        active_services[camera_mac].update({"server_url": config_data[camera_mac]['server_url']})
                     else:
                         service_list.append(values)
 
