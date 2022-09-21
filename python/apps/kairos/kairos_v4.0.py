@@ -106,8 +106,11 @@ CURRENT_DIR = os.getcwd()
 fps_streams = {}
 
 #global DASHBOARD_SERVER
+
+#Stores actions to execute per camera
 global action
-global aforo_url
+action = {}
+
 global people_counting_url
 global social_distance_url
 global header
@@ -140,36 +143,11 @@ entradas_salidas = {}
 social_distance_ids = {}
 scfg = {}
 sources = {}
-action = {}
 
 header = None
 
 
 #################  Model and service functions  #################
-
-def set_action_common_variables(service_name):
-    global GET_SERVER_CONFIG_URI, BASE_DIRECTORY, RESULTS_DIRECTORY, INPUT_DB_DIRECTORY, DEMO, WHITELIST_DB_NAME, WHITELIST_DB_DIRECTORY, BLACKLIST_DB_NAME, BLACKLIST_DB_DIRECTORY
-
-    if service_name == "whiteList" or service_name == "blackList":
-        GET_SERVER_CONFIG_URI = com.USER_SERVER_ENDPOINT+"/people/configPerServer"
-        BASE_DIRECTORY = os.path.expanduser('~') + "/faceRecognition"
-        RESULTS_DIRECTORY = BASE_DIRECTORY+"/face_results"
-        INPUT_DB_DIRECTORY = BASE_DIRECTORY+"/data_input"
-        DEMO = False
-
-    if service_name == "whiteList":
-        try:
-            WHITELIST_DB_NAME = "WhiteList.dat"
-            WHITELIST_DB_DIRECTORY = INPUT_DB_DIRECTORY + '/whitelist_db'
-        except AttributeError as e:
-            com.log_error("whitelist service parameters are not defined in definition.py file")
-    elif service_name == "blackList":
-        try:
-            BLACKLIST_DB_NAME = "BlackList.dat"
-            BLACKLIST_DB_DIRECTORY = INPUT_DB_DIRECTORY + '/blacklist_db'
-        except AttributeError as e:
-            com.log_error("blackList service parameters are not defined in definition.py file")
-
 
 def set_header(token_file=None):
     if token_file is None:
@@ -410,6 +388,12 @@ def get_dictionary_from_list(srv_id):
 def validate_aforo_values(data, srv_id, service_name):
     aforo_dict = get_dictionary_from_list(srv_id)['aforo']
 
+    if 'endpoint' not in aforo_dict:
+        service.log_error("Missing parameter 'endpoint' for service Aforo")
+    else:
+        if not isinstance(aforo_dict['endpoint'], str):
+            service.log_error("Parameter 'endpoint' most be string")
+
     if 'reference_line' not in aforo_dict:
         service.log_error("Missing parameter 'reference_line' for service Aforo")
     else:
@@ -610,6 +594,7 @@ def set_aforo(scfg, srv_camera_id, service_name):
 
             aforo_list[camera_mac].update({'line_m_b': [m, b]})
             aforo_list[camera_mac]['area_of_interest'].update({'area_rectangle': [topx, topy, width, height]})
+            aforo_list[camera_mac]['endpoint'] = scfg[camera_mac]['server_url']+aforo_list[camera_mac]['endpoint']
             #aforo_list.update(
             #        {
             #            'enabled': data['enabled'],
@@ -668,17 +653,6 @@ def set_aforo(scfg, srv_camera_id, service_name):
                 )
     else:
         service.log_error("Missing configuration parameters for 'aforo' service")
-
-
-def set_aforo_url(server_url):
-    global aforo_url
-    aforo_url = server_url + 'tx/video-people.endpoint'
-    return aforo_url
-
-
-def get_aforo_url():
-    global aforo_url
-    return afor_url
 
 
 def set_service_people_counting_url(server_url):
@@ -882,22 +856,21 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
                     if aforo_info['area_of_interest']['type'] == 'fixed':
                         entrada, salida = get_entrada_salida(camera_id)
                         initial, last = get_initial_last(camera_id)
-                        entrada, salida = service.aforo(header, aforo_url, (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, rectangle=rectangle)
+                        entrada, salida = service.aforo(header, aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, rectangle=rectangle)
                         set_entrada_salida(camera_id, entrada, salida)
                     else: 
                         #x > TopLeftx and x < (TopLeftx + Width) and y < (TopLefty + Height) and y > TopLefty:
                         #polygon_sides, polygon = get_reference_line(camera_id)
                         entrada, salida = get_entrada_salida(camera_id)
                         initial, last = get_initial_last(camera_id)
-                        aforo_url = "HARDCODED_VAR"
-                        entrada, salida = service.aforo(aforo_url, (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
+                        entrada, salida = service.aforo(aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
                         #print('despues de evaluar: index, entrada, salida', current_pad_index, entrada, salida)
                         set_entrada_salida(camera_id, entrada, salida)
                         #print("x=",x,"y=",y,'frame',frame_number,"ID=",obj_meta.object_id,"Entrada=",entrada,"Salida=",salida)
                 else:
                     entrada, salida = get_entrada_salida(camera_id)
                     initial, last = get_initial_last(camera_id)
-                    entrada, salida = service.aforo(header, aforo_url, (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1])
+                    entrada, salida = service.aforo(header, aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1])
                     #print('despues de evaluar: index, entrada, salida', current_pad_index, entrada, salida)
                     set_entrada_salida(camera_id, entrada, salida)
                     #print("x=",x,"y=",y,"ID=",obj_meta.object_id,"Entrada=",entrada,"Salida=",salida)
@@ -1081,12 +1054,11 @@ def main():
         call_order_of_keys.append(camera_mac)
         number_sources += 1
         for service_id in scfg[camera_mac]:
-            if service_id == "source":
+            if service_id == "source" or service_id == "server_url":
                 continue
             for item in scfg[camera_mac][service_id]:
                 for service_id_inner in item:
                     for service_name in item[service_id_inner]:
-                        #set_action_common_variables(service_name)
                         set_camera_mac_address(service_id_inner, camera_mac)
                         set_action(service_id_inner, service_name)
     is_live = False
