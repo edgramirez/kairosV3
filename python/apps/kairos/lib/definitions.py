@@ -1,3 +1,7 @@
+server_url = {
+        'server_url': 'str'
+        }
+
 source = {
         'source': 'str'
         }
@@ -72,7 +76,8 @@ ageGender = {
 aforo = {
         "aforo": {
             'obligatory': {
-                'enabled':  'bool'
+                'enabled':  'bool',
+                'endpoint': 'str'
                 },
             'optional': {
                 'reference_line': 'list',
