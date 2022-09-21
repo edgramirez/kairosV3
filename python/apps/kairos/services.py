@@ -143,7 +143,7 @@ def get_machine_macaddresses():
             macaddress_list.append(getHwAddr(iface_name))
             return macaddress_list
 
-
+'''
 def get_server_info(server_url, abort_if_exception = True, _quit = True):
     url = server_url + 'tx/device.getConfigByProcessDevice'
 
@@ -161,6 +161,7 @@ def get_server_info(server_url, abort_if_exception = True, _quit = True):
         return json.loads(response.text)
     else:
         return log_error("Unable to retrieve the device configuration from the server. Server response".format(response), _quit)
+'''
 
 
 def get_server_info_from_local_file(filename, _quit = True):
@@ -329,12 +330,8 @@ def check_if_object_is_in_area2(object_coordinates, reference_line, m, b):
         # if y > y_overtheline point is in Area2
         ''' 
         if object_coordinates[1] > y_overtheline:
-            print("Area2")
-            quit()
             return True
         else:
-            print("Area2")
-            quit()
             return False
 
 
