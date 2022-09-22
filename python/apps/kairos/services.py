@@ -449,8 +449,8 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
             initial.update({item: 2})
 
             print('Sending Json of camera_id: ', camera_id, 'ID: ',item, 'Sal:0,Ent:1 = ', direction_1_to_2, "tiempo =",time_in_epoc)
-            #x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
-            #x.start()
+            x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
+            x.start()
 
             if direction_1_to_2 == 1:
                 entradas += 1
@@ -470,8 +470,8 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
             initial.update({item: 1})
 
             print('Sending Json of camera_id: ', camera_id, 'ID: ',item, 'Sal:0,Ent:1 = ', direction_2_to_1, "tiempo =",time_in_epoc)
-            #x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
-            #x.start()
+            x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
+            x.start()
 
             if direction_2_to_1 == 1:
                 entradas += 1
