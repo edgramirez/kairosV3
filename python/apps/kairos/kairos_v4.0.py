@@ -350,7 +350,6 @@ def set_entrada_salida(key_id, entrada, salida):
         entradas_salidas[key_id] = [entrada, salida]
 
 
-
 def get_entrada_salida(key_id):
     global entradas_salidas
 
@@ -403,8 +402,31 @@ def validate_aforo_values(data, srv_id, service_name):
         if not isinstance(aforo_dict['reference_line'], dict):
             service.log_error("reference_line, most be a directory")
 
+        if 'line_coordinates' not in aforo_dict['reference_line']:
+            service.log_error("line_coordinates, not defined")
+
+        if not isinstance(aforo_dict['reference_line']['line_coordinates'], list):
+            service.log_error("line_coordinates, should be a list")
+            
+        for coordinate in aforo_dict['reference_line']['line_coordinates']:
+            if not isinstance(coordinate,list):
+                service.log_error("line_coordinates, elements should be list type")
+            if len(coordinate) != 2:
+                service.log_error("line_coordinates, every element is a list representing a coordinates in the layer x,y")
+            for element in coordinate:
+                if not isinstance(element, int):
+                    service.log_error("line_coordinates, every coordinates x,y should be an integer - {}".format(type(element)))
+                if element < 0:
+                    service.log_error("line_coordinates, every coordinates x,y should be an integer positive: {}".format(element))
+
         if 'outside_area' not in aforo_dict['reference_line']:
             service.log_error("'outside_area' must be defined as part of the reference_line values")
+
+        if not isinstance(aforo_dict['reference_line']['outside_area'], int):
+            service.log_error("outside_area should be integer")
+
+        if aforo_dict['reference_line']['outside_area'] not in [1,2]:
+            service.log_error("outside_area value most 1 or 2")
 
         if 'line_width' not in aforo_dict['reference_line']:
             default_witdth = 3
@@ -424,77 +446,19 @@ def validate_aforo_values(data, srv_id, service_name):
         if color_int < 0 or color_int > 255:
             service.log_error("color values should be integers within 0-255")
 
-    try:
-        outside_area = int(aforo_dict['reference_line']['outside_area'])
-    except Exception as e:
-        service.log_error("outside_area should be integer within 1 or 2")
-
-    if outside_area < 1 or outside_area > 2:
-        service.log_error("outside_area, most be an integer 1 or 2")
-
     if 'area_of_interest' in aforo_dict:
-        #if 'area_coordinates' not in aforo_dict['area_of_interest']:
-        #    com.log_error('Missing "area_coordinates" in configuration, current config: '+aforo_dict['area_of_interest'])
-        #if 'area_coordinates' not in aforo_dict['area_of_interest'] or (not isinstance(aforo_dict['area_of_interest']['area_coordinates'], list)) or len(aforo_dict['area_of_interest']['area_coordinates']) != 4 or (not all([isinstance(item, int) for item in aforo_dict['area_of_interest']['area_coordinates']])) or (not all([item>0 for item in aforo_dict['area_of_interest']['area_coordinates']])):
-        #    com.log_error('"area_coordinates" should be a list of 4 positve integers: '+aforo_dict['area_of_interest'])
-        if 'type' not in aforo_dict['area_of_interest']:
-            com.log_error("Missing 'type' in 'area_of_interest' object: {}".format(aforo_dict['area_of_interest']))
+        for key in aforo_dict['area_of_interest']:
+            try:
+                element_int = int(aforo_dict['area_of_interest'][key])
+            except ValueError:
+                com.log_error("Value of parameter: '{}' should be integer: {}".format(key), aforo_dict['area_of_interest'][key])
 
-        if aforo_dict['area_of_interest']['type'] not in ['line_inside_area', 'parallel', 'fixed']:
-            com.log_error("'type' object value must be 'line_inside_area', 'parallel' or 'fixed'")
+            if element_int < 0:
+                com.log_error("Value of parameter: '{}' should be integer positive - {}".format(key, element_int))
 
-        if aforo_dict['area_of_interest']['type'] == 'line_inside_area':
-            if 'padding_left' in aforo_dict['area_of_interest']: 
-                if not isinstance(aforo_dict['area_of_interest']['padding_left'], int) and aforo_dict['area_of_interest']['padding_left'] > -1:
-                    com.log_error("'padding_left' object value must be 'int' positive")
-            else:
-                aforo_dict['area_of_interest']['padding_left'] = 0
-
-            if 'padding_right' in aforo_dict['area_of_interest']:
-                if not isinstance(aforo_dict['area_of_interest']['padding_right'], int) and aforo_dict['area_of_interest']['padding_right'] > -1:
-                    com.log_error("'padding_right' object value must be 'int' positive")
-            else:
-                aforo_dict['area_of_interest']['padding_right'] = 0
-
-            if 'padding_top' in aforo_dict['area_of_interest']:
-                if not isinstance(aforo_dict['area_of_interest']['padding_top'], int) and aforo_dict['area_of_interest']['padding_top'] > -1:
-                    com.log_error("'padding_top' object value must be 'int' positive")
-            else:
-                aforo_dict['area_of_interest']['padding_top'] = 0
-
-            if 'padding_bottom' in aforo_dict['area_of_interest']:
-                if not isinstance(aforo_dict['area_of_interest']['padding_bottom'], int) and aforo_dict['area_of_interest']['padding_bottom'] > -1:
-                    com.log_error("'paddgin_bottom' object value must be 'int' positive")
-            else:
-                aforo_dict['area_of_interest']['padding_bottom'] = 0
-
-        '''
-            data[srv_id][service_name]['area_of_interest'].update({'up': (aforo_dict['area_of_interest']['area_coordinates'])})
-            data[srv_id][service_name]['area_of_interest'].update({'down': (aforo_dict['area_of_interest']['area_coordinates'])})
-            data[srv_id][service_name]['area_of_interest'].update({'left': (aforo_dict['area_of_interest']['area_coordinates'])})
-            data[srv_id][service_name]['area_of_interest'].update({'right': (aforo_dict['area_of_interest']['area_coordinates'])})
-
-        if aforo_dict['area_of_interest']['type'] == 'line_inside_area':
-            line_inside_area = ['up', 'down', 'left', 'right']
-            for param in horizontal_keys:
-                if param not in aforo_dict['area_of_interest']:
-                    service.log_error("Missing '{}' parameter in 'area_of_interest' object".format(param))
-
-                if not isinstance(data[srv_id][service_name]['area_of_interest'][param], int) or data[srv_id][service_name]['area_of_interest'][param] < 0:
-                    service.log_error("{} value should be integer and positive".format(params))
-        elif data[srv_id][service_name]['area_of_interest']['type'] == 'parallel':
-            service.log_error('type parallel not defined')
-        elif data[srv_id][service_name]['area_of_interest']['type'] == 'fixed':
-            inner_keys = ['topx', 'topy', 'height', 'width']
-            for param in inner_keys:
-                if param not in data[srv_id][service_name]['area_of_interest'].keys():
-                    service.log_error("Missing '{}' parameter in 'area_of_interest' object".format(param))
-                if not isinstance(data[srv_id][service_name]['area_of_interest'][param], int) or data[srv_id][service_name]['area_of_interest'][param] < 0:
-                    service.log_error("{} value should be integer and positive".format(params))
-        '''
-
-    #if 'area_of_interest' in data[srv_id][service_name] and 'reference_line' in data[srv_id][service_name] and data[srv_id][service_name]['area_of_interest']['type'] == 'fixed':
-    #    service.log_error("Incompatible parameters....  reference_line is not needed when having an area_of_interest type fixed")
+        for parameter in ['padding_right', 'padding_left', 'padding_top', 'padding_bottom']:
+            if parameter not in aforo_dict['area_of_interest']:
+                aforo_dict['area_of_interest'][parameter] = 0
 
 
 def validate_socialdist_values(data):
@@ -542,92 +506,42 @@ def set_aforo(scfg, srv_camera_id, service_name):
     # Copia de los datos de configuracion de aforo
     aforo_list.update({camera_mac: data})
 
-    if 'reference_line' in data and 'area_of_interest' in data and data['area_of_interest']['type'] in ['line_inside_area', 'parallel']:
+    if 'reference_line' in data and 'area_of_interest' in data:
         x1 = data['reference_line']['line_coordinates'][0][0]
         y1 = data['reference_line']['line_coordinates'][0][1]
         x2 = data['reference_line']['line_coordinates'][1][0]
         y2 = data['reference_line']['line_coordinates'][1][1]
 
-        if data['area_of_interest']['type'] == 'line_inside_area':
-            # padding es un espacio entre la linea y los bordes del area
-            # si no se define es por default 0
-            padding_left = data['area_of_interest']['padding_left']
-            padding_top = data['area_of_interest']['padding_top']
-            padding_right = data['area_of_interest']['padding_right']
-            padding_bottom = data['area_of_interest']['padding_bottom']
+        # padding es un espacio entre la linea y los bordes del area
+        # si no se define es por default 0
+        padding_left = data['area_of_interest']['padding_left']
+        padding_top = data['area_of_interest']['padding_top']
+        padding_right = data['area_of_interest']['padding_right']
+        padding_bottom = data['area_of_interest']['padding_bottom']
 
-            if x1 < x2:
-                topx = x1 - padding_left
-                width = abs((x2 + padding_right + padding_left) - x1)
-            else:
-                topx = x2 - padding_left
-                width = abs((x1 + padding_right + padding_left) - x2)
-
-            # adjusting if value is negative
-            if topx < 0:
-                topx = 1
-
-            if y1 < y2:
-                topy = y1 - padding_top
-                height = abs((y2 + padding_bottom + padding_top) - y1)
-            else:
-                topy = y2 - padding_top
-                height = abs((y1 + padding_bottom + padding_top) - y2)
-
-            # adjusting if value is negative
-            if topy < 0:
-                topy = 0
-
-            # ecuacion de la pendiente
-            if (x2 - x1) == 0:
-                m = None
-                b = None
-            elif (y2 - y1) == 0:
-                m = 0
-                b = 0
-            else:
-                m = ((y2 - y1) * 1.0) / (x2 -x1)
-                b = y1 - (m * x1)
-
-            if 'line_width' not in data['reference_line']:
-                data['reference_line']['line_width'] = 2
-
-            aforo_list[camera_mac].update({'line_m_b': [m, b]})
-            aforo_list[camera_mac]['area_of_interest'].update({'area_rectangle': [topx, topy, width, height]})
-            aforo_list[camera_mac]['endpoint'] = scfg[camera_mac]['server_url']+aforo_list[camera_mac]['endpoint']
-            #aforo_list.update(
-            #        {
-            #            'enabled': data['enabled'],
-            #            'outside_area': data['reference_line']['outside_area'],
-            #            'coordinates': data['reference_line']['line_coordinates'],
-            #            'width': data['reference_line']['line_width'],
-            #            'color': data['reference_line']['line_color'],
-            #            'line_m_b': [m, b],
-            #            'area_of_interest': {
-            #                'type': data['area_of_interest']['type'], 
-            #                'area_rectangle': [topx, topy, width, height]
-            #                },
-            #        }
-            #    )
+        if x1 < x2:
+            topx = x1 - padding_left
+            width = abs((x2 + padding_right + padding_left) - x1)
         else:
-            service.log_error("Parallel area logic not yet defined")
-    elif 'reference_line' not in data and 'area_of_interest' in data and data['area_of_interest']['type'] in ['fixed']:
-        topx = data['area_of_interest']['topx']
-        topy = data['area_of_interest']['topy']
-        width = data['area_of_interest']['width']
-        height = data['area_of_interest']['height']
+            topx = x2 - padding_left
+            width = abs((x1 + padding_right + padding_left) - x2)
 
-        aforo_list.update(
-            {
-                srv_camera_service_id: {
-                    'enabled': data['enabled'],
-                    'coordinates': None,
-                    'area_of_interest': {'type': data['area_of_interest']['type'], 'area_rectangle': [topx, topy, width, height]},
-                    }
-                }
-            )
+        # adjusting if value is negative
+        if topx < 0:
+            topx = 1
 
-    elif 'reference_line' in data and 'area_of_interest' not in data:
+        if y1 < y2:
+            topy = y1 - padding_top
+            height = abs((y2 + padding_bottom + padding_top) - y1)
+        else:
+            topy = y2 - padding_top
+            height = abs((y1 + padding_bottom + padding_top) - y2)
+
+        # adjusting if value is negative
+        if topy < 0:
+            topy = 0
+
+        # ecuacion de la pendiente
         if (x2 - x1) == 0:
             m = None
             b = None
@@ -638,19 +552,12 @@ def set_aforo(scfg, srv_camera_id, service_name):
             m = ((y2 - y1) * 1.0) / (x2 -x1)
             b = y1 - (m * x1)
 
-        aforo_list.update(
-                {
-                    srv_camera_service_id: {
-                        'enabled': data['enabled'],
-                        'outside_area': data['outside_area'],
-                        'coordinates': data['reference_line'],
-                        'width': data['line_width'],
-                        'color': data['line_color'],
-                        'line_m_b': [m, b],
-                        'area_of_interest': {'type': data['area_of_interest']['type'], 'area_rectangle': None},
-                        }
-                    }
-                )
+        if 'line_width' not in data['reference_line']:
+            data['reference_line']['line_width'] = 2
+
+        aforo_list[camera_mac].update({'line_m_b': [m, b]})
+        aforo_list[camera_mac]['area_of_interest'].update({'area_rectangle': [topx, topy, width, height]})
+        aforo_list[camera_mac]['endpoint'] = scfg[camera_mac]['server_url']+aforo_list[camera_mac]['endpoint']
     else:
         service.log_error("Missing configuration parameters for 'aforo' service")
 
@@ -831,49 +738,33 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
             #print(" width-x height -y Top  LEft ", x, "  ",y,"  ",t,"   ",l)
             obj_counter[obj_meta.class_id] += 1
             ids.append(obj_meta.object_id)
-            #x = int(obj_meta.rect_params.width + obj_meta.rect_params.left/2)
             x = int(obj_meta.rect_params.left + obj_meta.rect_params.width/2)
-            #print(x)
 
             if is_social_distance_enabled:
                 # centroide al pie
-                #y = int(obj_meta.rect_params.height + obj_meta.rect_params.top)
                 y = int(obj_meta.rect_params.top + obj_meta.rect_params.height) 
-                #print("x,y",x,"  ",y)
                 ids_and_boxes.update({obj_meta.object_id: (x, y)})
 
             # Service Aforo (in and out)
             if is_aforo_enabled:
                 # centroide al hombligo
-                #y = int(obj_meta.rect_params.height + obj_meta.rect_params.top/2) 
                 y = int(obj_meta.rect_params.top + obj_meta.rect_params.height/2) 
-                #print("x,y",x,"  ",y) 
                 boxes.append((x, y))
 
                 if aforo_info['area_of_interest']['area_rectangle']:
-                    #aa = service.is_point_inside_polygon(x, y, polygon_sides, polygon)
-                    #if aforo_info['area_of_interest']['type'] == 'fixed' and x > TopLeftx and x < (TopLeftx + Width) and y < (TopLefty + Height) and y > TopLefty:
-                    if aforo_info['area_of_interest']['type'] == 'fixed':
-                        entrada, salida = get_entrada_salida(camera_id)
-                        initial, last = get_initial_last(camera_id)
-                        entrada, salida = service.aforo(header, aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, rectangle=rectangle)
-                        set_entrada_salida(camera_id, entrada, salida)
-                    else: 
-                        #x > TopLeftx and x < (TopLeftx + Width) and y < (TopLefty + Height) and y > TopLefty:
-                        #polygon_sides, polygon = get_reference_line(camera_id)
-                        entrada, salida = get_entrada_salida(camera_id)
-                        initial, last = get_initial_last(camera_id)
-                        entrada, salida = service.aforo(aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
-                        #print('despues de evaluar: index, entrada, salida', current_pad_index, entrada, salida)
-                        set_entrada_salida(camera_id, entrada, salida)
-                        #print("x=",x,"y=",y,'frame',frame_number,"ID=",obj_meta.object_id,"Entrada=",entrada,"Salida=",salida)
+                    entrada, salida = get_entrada_salida(camera_id)
+                    initial, last = get_initial_last(camera_id)
+                    entrada, salida = service.aforo(aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
+                    set_entrada_salida(camera_id, entrada, salida)
                 else:
+                    '''
+                    not fully implemented - complex polygons of 3 or more than 4 sides
+                    '''
+                    #aa = service.is_point_inside_polygon(x, y, polygon_sides, polygon)
                     entrada, salida = get_entrada_salida(camera_id)
                     initial, last = get_initial_last(camera_id)
                     entrada, salida = service.aforo(header, aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1])
-                    #print('despues de evaluar: index, entrada, salida', current_pad_index, entrada, salida)
                     set_entrada_salida(camera_id, entrada, salida)
-                    #print("x=",x,"y=",y,"ID=",obj_meta.object_id,"Entrada=",entrada,"Salida=",salida)
             try: 
                 l_obj = l_obj.next
             except StopIteration:
@@ -1039,7 +930,6 @@ def set_action(srv_camera_id, service_name):
             return True
 
     com.log_error('Unable to set up value: {}, must be one of this: {}'.format(service_name, com.SERVICES))
-
 
 
 def main():
