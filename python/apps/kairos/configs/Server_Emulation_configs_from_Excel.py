@@ -34,7 +34,7 @@
                             "padding_top": 30,
                             "padding_bottom": 30
                             }
-                        }
+                    }
                 }
             }
         ]
