@@ -105,46 +105,68 @@ CURRENT_DIR = os.getcwd()
 # Matriz de frames per second, Se utiliza en tiler
 fps_streams = {}
 
-#global DASHBOARD_SERVER
 
-#Stores actions to execute per camera
+#Stores actions to execute per camera, each camera can execute multiple services
+#the only condition is all are based on the same model
 global action
 action = {}
 
-global people_counting_url
-global social_distance_url
-global header
-
-global aforo_list
-global social_distance_list
-global people_distance_list
-global people_counting_counters
-global token_file
-global entradas_salidas
-global initial_last_disappeared
-global social_distance_ids
-global scfg
+# the the path or video source to use, this value is 
+# unique per camera even though the source is a recorded mp4
 global sources
+sources = {}
+
+# stores header for the server communication exchange
+global header
+header = None
+
+# stores the path of the toke for the server communication exchange
+global token_file
+token_file = None
+
+# stores the configuration within all its process from reading, filtering
+# valiating values and add new parameters and format values. 
+global scfg
+scfg = {}
+
+# stores the order of how the sources are executed and associates an id
+# so that we can all it in the tiler function for the specific services
 global call_order_of_keys
-
-
 call_order_of_keys = []
-service_camera_mac_address = {}
+
+# store global frame counting 
 frame_count = {}
 saved_count = {}
 
 
-initial_last_disappeared = {}
+########## AFORO ##########
+# stores the configuration parameters and values of all the defined 
+# aforo's services (counting in/out people service). Only 1 aforo 
+# service per camera 
+global aforo_list
 aforo_list = {}
-people_distance_list = {}
-people_counting_counters = {}
-social_distance_list = {}
-entradas_salidas = {}
-social_distance_ids = {}
-scfg = {}
-sources = {}
 
-header = None
+global entradas_salidas
+entradas_salidas = {}
+
+global initial_last_disappeared
+initial_last_disappeared = {}
+
+
+########## SOCIAL DISTANCE ##########
+global social_distance_list
+social_distance_list = {}
+global social_distance_url
+global social_distance_ids
+social_distance_ids = {}
+
+
+########## PEOPLE COUNTING ##########
+global people_counting_url
+global people_counting_counters
+people_counting_counters = {}
+global people_distance_list
+people_distance_list = {}
 
 
 #################  Model and service functions  #################
@@ -160,25 +182,6 @@ def set_header(token_file=None):
         com.log_debug('Header correctly set')
         return header
     com.log_error('Unable to read token')
-
-
-def get_camera_mac_address(camera_service_id):
-    global service_camera_mac_address
-
-    if camera_service_id not in service_camera_mac_address:
-        com.log_error("Unable to found mac address value for service id: {}".format(camera_service_id))
-    else:
-        return service_camera_mac_address[camera_service_id]
-
-
-def set_camera_mac_address(camera_service_id, camera_mac_address):
-    global service_camera_mac_address
-
-    if camera_service_id not in service_camera_mac_address:
-        service_camera_mac_address.update({camera_service_id: camera_mac_address})
-    else:
-        service_camera_mac_address[camera_service_id] = camera_mac_address
-
 
 ##############################################################
 
@@ -296,19 +299,19 @@ def get_social_distance(key_id, key = None):
             return social_distance_list[key_id]
 
 
-def get_aforo(key_id, key = None, second_key = None):
+def get_aforo(camera_id, key = None, second_key = None):
     global aforo_list
 
-    if key_id not in aforo_list:
+    if camera_id not in aforo_list:
         return {'enabled': False}
 
     if key is None:
-        return aforo_list[key_id]
+        return aforo_list[camera_id]
     else:
         if second_key is None:
-            return aforo_list[key_id][key]
+            return aforo_list[camera_id][key]
         else:
-            return aforo_list[key_id][key][second_key]
+            return aforo_list[camera_id][key][second_key]
 
 
 def set_sources(srv_camera_service_id, source_value):
@@ -574,9 +577,6 @@ def set_aforo(scfg, srv_camera_id, service_name):
             # adjusting if value is negative
             if topy < 0:
                 topy = 0
-
-            #width = width + abs(x1 - x2)
-            #height = height + abs(y1 - y2)
 
             # ecuacion de la pendiente
             if (x2 - x1) == 0:
@@ -1059,7 +1059,6 @@ def main():
             for item in scfg[camera_mac][service_id]:
                 for service_id_inner in item:
                     for service_name in item[service_id_inner]:
-                        set_camera_mac_address(service_id_inner, camera_mac)
                         set_action(service_id_inner, service_name)
     is_live = False
 
