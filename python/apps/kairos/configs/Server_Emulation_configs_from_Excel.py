@@ -1,8 +1,8 @@
 {
     "ac:17:c8:62:08:5b":
     {
-        "server_url": "https://unique_server_url/",
-        "source": "file:///home/edgar/shopping_mall.mkv",
+        "server_url": "http://3.219.81.19:8888/",
+        "source": "file:///home/edgar/Downloads/CAM_26_Entrance_1.mp4",
         "services":
         [
             {
@@ -25,17 +25,15 @@
                     "enabled": true,
                     "endpoint": "posts/aforo",
                     "reference_line": {
-                        "line_coordinates": [[1020, 500], [720, 800]],
+                        "line_coordinates": [[620, 400], [1220, 400]],
                         "line_color": [123,123,220,100],
-                        "outside_area": 1
-                        },
-                    "max_capacity": 0,
-                    "area_of_interest": {
-                        "padding_right": 20,
-                        "padding_left": 20,
-                        "padding_top": 20,
-                        "padding_bottom": 20,
-                        "type": "line_inside_area"
+                        "outside_area": 1,
+                        "area_of_interest": {
+                            "padding_right": 30,
+                            "padding_left": 30,
+                            "padding_top": 30,
+                            "padding_bottom": 30
+                            }
                         }
                 }
             }

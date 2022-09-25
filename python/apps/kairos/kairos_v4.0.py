@@ -446,19 +446,19 @@ def validate_aforo_values(data, srv_id, service_name):
         if color_int < 0 or color_int > 255:
             service.log_error("color values should be integers within 0-255")
 
-    if 'area_of_interest' in aforo_dict:
-        for key in aforo_dict['area_of_interest']:
+    if 'area_of_interest' in aforo_dict['reference_line']:
+        for key in aforo_dict['reference_line']['area_of_interest']:
             try:
-                element_int = int(aforo_dict['area_of_interest'][key])
+                element_int = int(aforo_dict['reference_line']['area_of_interest'][key])
             except ValueError:
-                com.log_error("Value of parameter: '{}' should be integer: {}".format(key), aforo_dict['area_of_interest'][key])
+                com.log_error("Value of parameter: '{}' should be integer: {}".format(key), aforo_dict['reference_line']['area_of_interest'][key])
 
             if element_int < 0:
                 com.log_error("Value of parameter: '{}' should be integer positive - {}".format(key, element_int))
 
         for parameter in ['padding_right', 'padding_left', 'padding_top', 'padding_bottom']:
-            if parameter not in aforo_dict['area_of_interest']:
-                aforo_dict['area_of_interest'][parameter] = 0
+            if parameter not in aforo_dict['reference_line']['area_of_interest']:
+                aforo_dict['reference_line']['area_of_interest'][parameter] = 0
 
 
 def validate_socialdist_values(data):
@@ -506,7 +506,7 @@ def set_aforo(scfg, srv_camera_id, service_name):
     # Copia de los datos de configuracion de aforo
     aforo_list.update({camera_mac: data})
 
-    if 'reference_line' in data and 'area_of_interest' in data:
+    if 'reference_line' in data and 'area_of_interest' in data['reference_line']:
         x1 = data['reference_line']['line_coordinates'][0][0]
         y1 = data['reference_line']['line_coordinates'][0][1]
         x2 = data['reference_line']['line_coordinates'][1][0]
@@ -514,10 +514,10 @@ def set_aforo(scfg, srv_camera_id, service_name):
 
         # padding es un espacio entre la linea y los bordes del area
         # si no se define es por default 0
-        padding_left = data['area_of_interest']['padding_left']
-        padding_top = data['area_of_interest']['padding_top']
-        padding_right = data['area_of_interest']['padding_right']
-        padding_bottom = data['area_of_interest']['padding_bottom']
+        padding_left = data['reference_line']['area_of_interest']['padding_left']
+        padding_top = data['reference_line']['area_of_interest']['padding_top']
+        padding_right = data['reference_line']['area_of_interest']['padding_right']
+        padding_bottom = data['reference_line']['area_of_interest']['padding_bottom']
 
         if x1 < x2:
             topx = x1 - padding_left
@@ -556,7 +556,7 @@ def set_aforo(scfg, srv_camera_id, service_name):
             data['reference_line']['line_width'] = 2
 
         aforo_list[camera_mac].update({'line_m_b': [m, b]})
-        aforo_list[camera_mac]['area_of_interest'].update({'area_rectangle': [topx, topy, width, height]})
+        aforo_list[camera_mac]['reference_line']['area_of_interest'].update({'area_rectangle': [topx, topy, width, height]})
         aforo_list[camera_mac]['endpoint'] = scfg[camera_mac]['server_url']+aforo_list[camera_mac]['endpoint']
     else:
         service.log_error("Missing configuration parameters for 'aforo' service")
@@ -670,7 +670,7 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
         else:
             outside_area = None
 
-        if aforo_info['area_of_interest']['area_rectangle']:
+        if aforo_info['reference_line']['area_of_interest']['area_rectangle']:
             '''
             # setup del rectangulo de Ent/Sal                        #TopLeftx, TopLefty --------------------
             # de igual manera que los parametros de linea,           |                                      |
@@ -679,10 +679,10 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
             #                                                        #Height -------------------------> Width
             '''
 
-            TopLeftx = aforo_info['area_of_interest']['area_rectangle'][0]
-            TopLefty = aforo_info['area_of_interest']['area_rectangle'][1]
-            Width = aforo_info['area_of_interest']['area_rectangle'][2]
-            Height = aforo_info['area_of_interest']['area_rectangle'][3]
+            TopLeftx = aforo_info['reference_line']['area_of_interest']['area_rectangle'][0]
+            TopLefty = aforo_info['reference_line']['area_of_interest']['area_rectangle'][1]
+            Width = aforo_info['reference_line']['area_of_interest']['area_rectangle'][2]
+            Height = aforo_info['reference_line']['area_of_interest']['area_rectangle'][3]
             x_plus_width = TopLeftx + Width
             y_plus_height = TopLefty + Height
 
@@ -751,7 +751,7 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
                 y = int(obj_meta.rect_params.top + obj_meta.rect_params.height/2) 
                 boxes.append((x, y))
 
-                if aforo_info['area_of_interest']['area_rectangle']:
+                if aforo_info['reference_line']['area_of_interest']['area_rectangle']:
                     entrada, salida = get_entrada_salida(camera_id)
                     initial, last = get_initial_last(camera_id)
                     entrada, salida = service.aforo(aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
