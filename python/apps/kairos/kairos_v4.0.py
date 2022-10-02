@@ -111,7 +111,7 @@ fps_streams = {}
 global action
 action = {}
 
-# the the path or video source to use, this value is 
+# the path or video source to use, this value is
 # unique per camera even though the source is a recorded mp4
 global sources
 sources = {}
@@ -320,7 +320,7 @@ def set_sources(srv_camera_service_id, source_value):
     if srv_camera_service_id not in sources:
         sources.update({srv_camera_service_id: source_value})
     else:
-        source[srv_camera_service_id] = source_value
+        sources[srv_camera_service_id] = source_value
 
 
 def get_sources():
@@ -384,7 +384,7 @@ def get_dictionary_from_list(srv_id):
         if srv_id in dict_element:
             return dict_element[srv_id]
 
-    com.log_error("Unable to find the key: "+key_to_search+" in the data")
+    com.log_error("Unable to find the key: "+srv_id+" in the data")
 
 
 def validate_aforo_values(data, srv_id, service_name):
@@ -409,15 +409,17 @@ def validate_aforo_values(data, srv_id, service_name):
             service.log_error("line_coordinates, should be a list")
             
         for coordinate in aforo_dict['reference_line']['line_coordinates']:
-            if not isinstance(coordinate,list):
+            if not isinstance(coordinate, list):
                 service.log_error("line_coordinates, elements should be list type")
             if len(coordinate) != 2:
-                service.log_error("line_coordinates, every element is a list representing a coordinates in the layer x,y")
+                service.log_error("line_coordinates, every element is a list representing coordinates in the layer x,y")
             for element in coordinate:
                 if not isinstance(element, int):
-                    service.log_error("line_coordinates, every coordinates x,y should be an integer - {}".format(type(element)))
+                    service.log_error("line_coordinates, every coordinates x,y should be an integer - {}"
+                                      .format(type(element)))
                 if element < 0:
-                    service.log_error("line_coordinates, every coordinates x,y should be an integer positive: {}".format(element))
+                    service.log_error("line_coordinates, every coordinates x,y should be an integer positive: {}"
+                                      .format(element))
 
         if 'outside_area' not in aforo_dict['reference_line']:
             service.log_error("'outside_area' must be defined as part of the reference_line values")
@@ -429,13 +431,13 @@ def validate_aforo_values(data, srv_id, service_name):
             service.log_error("outside_area value most 1 or 2")
 
         if 'line_width' not in aforo_dict['reference_line']:
-            default_witdth = 3
-            aforo_dict['reference_line']['line_width'] = default_witdth;
-            com.log_debug("Parameter 'line_color' was not defined. Using default value: "+str(default_witdth))
+            default_width = 3
+            aforo_dict['reference_line']['line_width'] = default_width
+            com.log_debug("Parameter 'line_color' was not defined. Using default value: "+str(default_width))
 
         if 'line_color' not in aforo_dict['reference_line']:
-            default_color = [222,221,100,99]
-            aforo_dict['reference_line']['line_color'] = default_color;
+            default_color = [222, 221, 100, 99]
+            aforo_dict['reference_line']['line_color'] = default_color
             com.log_debug("Parameter 'line_color' was not defined. Using default value: "+default_color)
 
     for color in aforo_dict['reference_line']['line_color']:
@@ -451,8 +453,8 @@ def validate_aforo_values(data, srv_id, service_name):
             try:
                 element_int = int(aforo_dict['reference_line']['area_of_interest'][key])
             except ValueError:
-                com.log_error("Value of parameter: '{}' should be integer: {}".format(key), aforo_dict['reference_line']['area_of_interest'][key])
-
+                com.log_error("Value of parameter: '{}' should be integer: {}".format(key),
+                              aforo_dict['reference_line']['area_of_interest'][key])
             if element_int < 0:
                 com.log_error("Value of parameter: '{}' should be integer positive - {}".format(key, element_int))
 
@@ -556,7 +558,8 @@ def set_aforo(scfg, srv_camera_id, service_name):
             data['reference_line']['line_width'] = 2
 
         aforo_list[camera_mac].update({'line_m_b': [m, b]})
-        aforo_list[camera_mac]['reference_line']['area_of_interest'].update({'area_rectangle': [topx, topy, width, height]})
+        aforo_list[camera_mac]['reference_line']['area_of_interest'].update(
+            {'area_rectangle': [topx, topy, width, height]})
         aforo_list[camera_mac]['endpoint'] = scfg[camera_mac]['server_url']+aforo_list[camera_mac]['endpoint']
     else:
         service.log_error("Missing configuration parameters for 'aforo' service")
@@ -585,7 +588,7 @@ def get_social_distance_url():
 
 
 def tiler_src_pad_buffer_probe(pad, info, u_data):
-    # Intiallizing object counter with 0.
+    # Initializing object counter with 0.
     # version 2.1 solo personas
     global header
 
@@ -652,7 +655,7 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
         py_nvosd_rect_params = display_meta.rect_params[0]        
 
         # Setup de la linea de Ent/Sal
-        # los valos de las coordenadas tienen que ser obtenidos del archivo de configuracion
+        # los valores de las coordenadas tienen que ser obtenidos del archivo de configuracion
         # en este momento estan hardcode
 
         if reference_line:
@@ -754,7 +757,10 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
                 if aforo_info['reference_line']['area_of_interest']['area_rectangle']:
                     entrada, salida = get_entrada_salida(camera_id)
                     initial, last = get_initial_last(camera_id)
-                    entrada, salida = service.aforo(aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
+                    entrada, salida = service.aforo(
+                        aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id,
+                        initial, last, entrada, salida, outside_area, reference_line,
+                        aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
                     set_entrada_salida(camera_id, entrada, salida)
                 else:
                     '''
@@ -763,7 +769,10 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
                     #aa = service.is_point_inside_polygon(x, y, polygon_sides, polygon)
                     entrada, salida = get_entrada_salida(camera_id)
                     initial, last = get_initial_last(camera_id)
-                    entrada, salida = service.aforo(header, aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last, entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0], aforo_info['line_m_b'][1])
+                    entrada, salida = service.aforo(
+                        header, aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last,
+                        entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0],
+                        aforo_info['line_m_b'][1])
                     set_entrada_salida(camera_id, entrada, salida)
             try: 
                 l_obj = l_obj.next
@@ -892,30 +901,8 @@ def set_action(srv_camera_id, service_name):
         action.update({srv_camera_id: service_name})
 
         com.log_debug('Set "{}" variables for service id: {}'.format(service_name, srv_camera_id))
-        if service_name == 'find':
-            if service_name == com.SERVICE_DEFINITION[com.SERVICES[service_name]]:
-                com.log_error("Servicio de find no definido aun")
-            else:
-                com.log_error("Servicio '"+service_name+"' no definido")
-        elif service_name == 'blackList':
-            if service_name in com.SERVICE_DEFINITION[com.SERVICES[service_name]] and BLACKLIST_DB_NAME:
-                config_blacklist(srv_camera_id)
-                execute_actions = True
-            else:
-                com.log_error("Servicio '"+service_name+"' no definido")
-        elif service_name == 'whiteList':
-            if service_name in com.SERVICE_DEFINITION[com.SERVICES[service_name]] and WHITELIST_DB_NAME:
-                config_whitelist(srv_camera_id)
-                execute_actions = True
-            else:
-                com.log_error("Servicio '"+service_name+"' no definido")
-        elif service_name == 'ageAndGender':
-            if service_name in com.SERVICE_DEFINITION[com.SERVICES[service_name]]:
-                config_age_and_gender(srv_camera_id)
-                execute_actions = True
-            else:
-                com.log_error("Servicio '"+service_name+"' no definido")
-        elif service_name == 'aforo':
+
+        if service_name == 'aforo':
             if service_name in com.SERVICE_DEFINITION[com.SERVICES[service_name]]:
                 validate_aforo_values(scfg, srv_camera_id, service_name)
                 set_aforo(scfg, srv_camera_id, service_name)
@@ -926,7 +913,6 @@ def set_action(srv_camera_id, service_name):
 
         if execute_actions:
             com.log_debug("Adjusted configuration: ")
-            print(scfg)
             return True
 
     com.log_error('Unable to set up value: {}, must be one of this: {}'.format(service_name, com.SERVICES))
@@ -987,7 +973,7 @@ def main():
 
             com.log_debug("Creating source_bin: {}.- {} with uri_name: {}\n".format(i, ordered_key, uri_name))
 
-            if uri_name.find("rtsp://") == 0 :
+            if uri_name.find("rtsp://") == 0:
                 is_live = True
 
             source_bin = create_source_bin(i, uri_name)
@@ -1007,9 +993,8 @@ def main():
             i += 1
             break
 
-    com.log_debug("Numero de fuentes :{}".format(number_sources))
+    com.log_debug("Number of sources :{}".format(number_sources))
     print("\n------ Fps_streams: ------ \n", fps_streams)
-
 
     '''
     -------- Configuration loaded --------
@@ -1216,14 +1201,14 @@ def main():
     else:
         nvosd.link(sink)
 
-    # create and event loop and feed gstreamer bus mesages to it
+    # create and event loop and feed gstreamer bus messages to it
     loop = GObject.MainLoop()
 
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect("message", bus_call, loop)
 
-    # Lets add probe to get informed of the meta data generated, we add probe to
+    # Let's add probe to get informed of the metadata generated, we add probe to
     # the sink pad of the osd element, since by that time, the buffer would have
     # had got all the metadata.
 
