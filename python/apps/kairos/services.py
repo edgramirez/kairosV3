@@ -5,18 +5,11 @@ import json
 import time
 import requests
 import threading
-
 import fcntl
 import socket
 import struct
-
 import mycommon as com
-
 from math import sqrt
-from random import seed, randint
-from datetime import datetime
-
-
 
 global first_time_set
 global last_time_set
@@ -37,8 +30,7 @@ first_time_set = set()
 last_time_set = set()
 
 
-##### GENERIC FUNCTIONS
-
+# #### GENERIC FUNCTIONS
 
 def log_error(msg, _quit = True):
     print("-- PARAMETER ERROR --\n"*5)
@@ -71,13 +63,11 @@ def open_file(file_name, option='a+'):
     return False
 
 
-def create_file(file_name, content = None):
-
+def create_file(file_name, content=None):
     if file_exists(file_name):
         os.remove(file_name)
         if file_exists(file_name):
             raise Exception('unable to delete file: %s' % file_name)
-
     if content:
         with open(file_name, 'w+') as f:
             f.write(content)
@@ -100,7 +90,8 @@ def get_number_of_frames_per_second():
 
 
 def get_supported_actions():
-    return ('GET', 'POST', 'PUT', 'DELETE')
+    valid_values = ('GET', 'POST', 'PUT', 'DELETE')
+    return valid_values
 
 
 def get_timestamp():
@@ -123,6 +114,7 @@ def set_header(token_file = None):
 
     return False
 
+
 def getHwAddr(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     info = fcntl.ioctl(s.fileno(), 0x8927,  struct.pack('256s', bytes(ifname, 'utf-8')[:15]))
@@ -133,7 +125,7 @@ def get_ip_address(ifname):
     return [l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
 
 
-def get_machine_macaddresses():
+def get_machine_mac_addresses():
     list_of_interfaces = [item for item in os.listdir('/sys/class/net/') if item != 'lo']
     macaddress_list = []
 
@@ -143,34 +135,14 @@ def get_machine_macaddresses():
             macaddress_list.append(getHwAddr(iface_name))
             return macaddress_list
 
-'''
-def get_server_info(server_url, abort_if_exception = True, _quit = True):
-    url = server_url + 'tx/device.getConfigByProcessDevice'
 
-    for machine_id in get_machine_macaddresses():
-        # HARDCODED MACHINE ID
-        #machine_id = '00:04:4b:eb:f6:dd'
-        data = {"id": machine_id}
-        
-        if abort_if_exception:
-            response = send_json(data, 'POST', url)
-        else:
-            options = {'abort_if_exception': False}
-            response = send_json(data, 'POST', url, **options)
-    if response:
-        return json.loads(response.text)
-    else:
-        return log_error("Unable to retrieve the device configuration from the server. Server response".format(response), _quit)
-'''
-
-
-def get_server_info_from_local_file(filename, _quit = True):
+def get_server_info_from_local_file(filename, _quit=True):
     if file_exists(filename):
         with open(filename) as f:
             data = json.load(f)
             if isinstance(data, dict):
                 return data
-            return log_error("data unknow error, data is not a dictionary: {}")
+            return log_error("data unknown error, data is not a dictionary: {}")
     else:
         return log_error("Unable to read the device configuration from local file: {}".format(filename), _quit)
 
@@ -201,17 +173,19 @@ def get_config_filtered_by_local_mac(config_data):
 
 def get_config_filtered_by_active_service(config_data):
     if not isinstance(config_data, dict):
-        log_error("Configuration error - Config data must be a dictionary - type: {} / content: {}".format(type(config_data), config_data))
+        log_error("Configuration error - Config data must be a dictionary - type: {} / content: {}".
+                  format(type(config_data), config_data))
     active_services = {}
 
-    # at this point there should be only one server mac but we still loop in case we have many multiple network interfaces 
+    # at this point there should be only one server mac, but we loop in case we have many multiple networks interfaces
     for server_mac in config_data.keys():
         #  we loop over all the different cameras attach to this server
         for camera_mac in config_data[server_mac]:
             # we loop over all the services assigned to the camera
             for service in config_data[server_mac][camera_mac]:
-                # if the service is enable we add it to the active services
-                if 'enabled' in config_data[server_mac][camera_mac][service] and config_data[server_mac][camera_mac][service]['enabled'] is True:
+                # if the service is enabled we add it to the active services
+                if 'enabled' in config_data[server_mac][camera_mac][service] and \
+                        config_data[server_mac][camera_mac][service]['enabled'] is True:
                     if 'source' not in config_data[server_mac][camera_mac][service]:
                         log_error("Service {} must have a source (video or live streaming)".format(service))
 
@@ -226,13 +200,13 @@ def get_config_filtered_by_active_service(config_data):
 
 
 def mac_address_in_config(mac_config):
-    for machine_id in com.get_machine_macaddresses():
+    for machine_id in com.get_machine_mac_addresses():
         if mac_config == machine_id:
             return True
     return False
 
 
-def send_json(payload, action, url = None, **options):
+def send_json(payload, action, url=None, **options):
     set_header()
     global header
 
@@ -263,7 +237,8 @@ def send_json(payload, action, url = None, **options):
         except requests.exceptions.ConnectionError as e:
             time.sleep(sleep_time)
             if retry == retries - 1 and abort_if_exception:
-                raise Exception("Unable to Connect to the server after {} retries\n. Original exception: {}".format(retry, str(e)))
+                raise Exception("Unable to Connect to the server after {} retries\n. Original exception: {}".
+                                format(retry, str(e)))
         except requests.exceptions.HTTPError as e:
             time.sleep(sleep_time)
             if retry == retries - 1 and abort_if_exception:
@@ -309,9 +284,9 @@ def check_if_object_is_in_area2(object_coordinates, reference_line, m, b):
         # y1 = reference_line[0][1]
         # x = object_coordinates[0]
         # m = ((y2 - y1) * 1.0) / (x2 - x1) ... multiply by 1.0 to force float division
-        # y_overtheline = (m * (x - x1)) + y1  ... general line ecuation
+        # y_over_the_line = (m * (x - x1)) + y1  ... general line equation
 
-        *** in the video the y's values increses while going down
+        *** in the video the y's values increases while going down
         *** Are2 is always the higher values of y's after the reference line
 
         -------------      ------------
@@ -322,14 +297,15 @@ def check_if_object_is_in_area2(object_coordinates, reference_line, m, b):
         |       /          |      \
 
 
-        Given a point p=x,y the "x" is evaluated in the line equation, if the calculated "y_overtheline" is lower than the "y" of
+        Given a point p=x,y the "x" is evaluated in the line equation, if the 
+        calculated "y_over_the_line" is lower than the "y" of
         the point "p", then the point is down the line and so in A2 
         '''
-        y_overtheline = (m * object_coordinates[0]) + b
+        y_over_the_line = (m * object_coordinates[0]) + b
         '''
         # if y > y_overtheline point is in Area2
         ''' 
-        if object_coordinates[1] > y_overtheline:
+        if object_coordinates[1] > y_over_the_line:
             return True
         else:
             return False
@@ -337,18 +313,18 @@ def check_if_object_is_in_area2(object_coordinates, reference_line, m, b):
 
 def is_point_insde_polygon(x, y, polygon_length, polygon):
 
-    p1x,p1y = polygon[0]
+    p1x, p1y = polygon[0]
     for i in range(polygon_length+1):
-        p2x,p2y = polygon[i % polygon_length]
-        if y > min(p1y,p2y):
-            if y <= max(p1y,p2y):
-                if x <= max(p1x,p2x):
+        p2x, p2y = polygon[i % polygon_length]
+        if y > min(p1y, p2y):
+            if y <= max(p1y, p2y):
+                if x <= max(p1x, p2x):
                     if p1y != p2y:
                         xinters = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
                     if p1x == p2x or x <= xinters:
                         # returns True if x,y are inside
                         return True
-        p1x,p1y = p2x,p2y
+        p1x, p1y = p2x, p2y
 
     # returns False if x,y are not inside
     return False
@@ -386,7 +362,8 @@ def people_counting(camera_id, total_objects):
 #    global aforo_url, srv_url
 #aforo_url = srv_url + 'tx/video-people.endpoint'
 
-def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, salidas, outside_area=None, reference_line=None, m=None, b=None, rectangle=None):
+def aforo(aforo_url, box, object_id, camera_id, initial, last, entradas, salidas, outside_area=None,
+          reference_line=None, m=None, b=None, rectangle=None):
     '''
     A1 is the closest to the origin (0,0) and A2 is the area after the reference line
     A1 is by default the outside
@@ -448,7 +425,8 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
                 }
             initial.update({item: 2})
 
-            print('Sending Json of camera_id: ', camera_id, 'ID: ',item, 'Sal:0,Ent:1 = ', direction_1_to_2, "tiempo =",time_in_epoc)
+            print('Sending Json of camera_id: ', camera_id, 'ID: ', item, 'Sal:0,Ent:1 = ',
+                  direction_1_to_2, "tiempo =", time_in_epoc)
             x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
             x.start()
 
@@ -469,7 +447,8 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
                 }
             initial.update({item: 1})
 
-            print('Sending Json of camera_id: ', camera_id, 'ID: ',item, 'Sal:0,Ent:1 = ', direction_2_to_1, "tiempo =",time_in_epoc)
+            print('Sending Json of camera_id: ', camera_id, 'ID: ', item, 'Sal:0,Ent:1 = ', direction_2_to_1,
+                  "tiempo =", time_in_epoc)
             x = threading.Thread(target=send_json, args=(data, 'PUT', aforo_url,))
             x.start()
 
@@ -483,7 +462,7 @@ def aforo(aforo_url, box, object_id, ids, camera_id, initial, last, entradas, sa
 
 ##### SOCIAL DISTANCE
 
-def set_social_distance_url(server_url):
+def set_social_distance_url(srv_url):
     global social_distance_url
     social_distance_url = srv_url + 'tx/video-socialDistancing.endpoint'
 
@@ -503,10 +482,11 @@ def social_distance2(camera_id, ids_and_boxes, tolerated_distance, persistence_t
 
     We are going to start compararing the first element (index=0 or i=0)
     '''
-    # TODO: diccionario puede crecer mucho depurarlo comparando los elementos que dejen de existir o no sean detectados despues de 5seg')
+    # TODO: diccionario puede crecer mucho depurarlo comparando los elementos que dejen
+    #  de existir o no sean detectados despues de 5seg')
 
     # sorting elements to always have the same evaluation order 
-    ids = [ item for item in ids_and_boxes.keys() ]
+    ids = [item for item in ids_and_boxes.keys()]
     ids.sort()
     # creating the list 
     i = 1
@@ -562,10 +542,10 @@ def social_distance2(camera_id, ids_and_boxes, tolerated_distance, persistence_t
                             dy = y - Ay
 
                         if (dx + dy) < max_side_plus_side and sqrt((dx*dx) + (dy*dy)) < tolerated_distance:
-                            # firt time detection for associated C is registered
+                            # first time detection for associated C is registered
                             detected_at_inner = get_timestamp()
                             detected_ids[pivot].update({
-                                inner:{
+                                inner: {
                                     '#detected_at': detected_at_inner,
                                     '#reported_at': None,
                                     'reported': False,
@@ -597,16 +577,18 @@ def social_distance2(camera_id, ids_and_boxes, tolerated_distance, persistence_t
                         else:
                             current_time = get_timestamp()
                             initial_time = detected_ids[pivot][inner]['#detected_at']
-                            if not detected_ids[pivot][inner]['reported'] and (current_time - initial_time) >= persistence_time:
+                            if not detected_ids[pivot][inner]['reported'] and \
+                                    (current_time - initial_time) >= persistence_time:
                                 detected_ids[pivot][inner].update({'#reported_at': current_time})
                                 detected_ids[pivot][inner].update({'reported': True})
-                                alert_id = str(current_time) + '_' +  str(pivot) + '_and_'+ str(inner)
+                                alert_id = str(current_time) + '_'+str(pivot) + '_and_'+str(inner)
                                 data = {
                                     'id': alert_id,
                                     'camera-id': camera_id,
                                     '#date': current_time,
                                     }
-                                print('Social distance', data, social_distance_url, 'PUT', 'distance=', sqrt((dx*dx) + (dy*dy)), 'tolerada:', tolerated_distance)
+                                print('Social distance', data, social_distance_url, 'PUT', 'distance=',
+                                      sqrt((dx*dx) + (dy*dy)), 'tolerada:', tolerated_distance)
                                 x = threading.Thread(target=send_json, args=(data, 'PUT', social_distance_url,))
                                 x.start()
             i += 1
@@ -619,7 +601,7 @@ def set_mask_detection_url(server_url):
     mask_detection_url = server_url + 'tx/video-maskDetection.endpoint'
 
 
-def mask_detection(mask_id, no_mask_ids, camera_id, reported_class = 0):
+def mask_detection(mask_id, no_mask_ids, camera_id, reported_class=0):
     time_in_epoc = get_timestamp()
     data_id = str(time_in_epoc) + '_' + str(mask_id)
     data = {
@@ -634,11 +616,5 @@ def mask_detection(mask_id, no_mask_ids, camera_id, reported_class = 0):
     x = threading.Thread(target=send_json, args=(data, 'PUT', mask_detection_url,))
     x.start()
 
-
-#### PLATE DETECTION
-
-def set_plate_detection_url(server_url):
-    global plate_detection_url
-    plate_detection_url = server_url + 'TO_BE_SETUP______tx/video-plateDetection.endpoint'
 
 

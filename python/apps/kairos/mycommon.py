@@ -27,7 +27,7 @@ def log_error(msg, _quit = True):
         return False
 
 
-def get_machine_macaddresses():
+def get_machine_mac_addresses():
     try:
         default_iface = os.environ['ID_IFACE']
     except KeyError:

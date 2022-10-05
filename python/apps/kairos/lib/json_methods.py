@@ -2,11 +2,11 @@ import time
 import requests
 import codecs, json
 from datetime import datetime, timedelta
-import lib.common as com
 
 
 def get_supported_actions():
-    return ('GET', 'POST', 'PUT', 'DELETE')
+    valid_values = ('GET', 'POST', 'PUT', 'DELETE')
+    return valid_values
 
 
 def send_json(header, payload, action, url=None, **options):
@@ -31,7 +31,6 @@ def send_json(header, payload, action, url=None, **options):
                 r = requests.put(url, data=data, headers=header)
             else:
                 r = requests.delete(url, data=data, headers=header)
-            # com.log_debug('status: {}'.format(r.status_code))
             return r
         except requests.exceptions.ConnectionError as e:
             time.sleep(sleep_time)

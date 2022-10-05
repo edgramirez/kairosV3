@@ -51,7 +51,7 @@ def lookup_known_face(face_encoding, known_face_encodings_list, known_face_metad
     best_match, distance = compare_against_encoding_list(face_encoding, known_face_encodings_list)
 
     if best_match:
-        return   known_face_metadata[best_match], best_match, distance
+        return known_face_metadata[best_match], best_match, distance
 
     return None, None, None
 

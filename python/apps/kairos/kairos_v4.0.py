@@ -760,7 +760,7 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
                     entrada, salida = get_entrada_salida(camera_id)
                     initial, last = get_initial_last(camera_id)
                     entrada, salida = service.aforo(
-                        aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id,
+                        aforo_info['endpoint'], (x, y), obj_meta.object_id, camera_id,
                         initial, last, entrada, salida, outside_area, reference_line,
                         aforo_info['line_m_b'][0], aforo_info['line_m_b'][1], rectangle)
                     set_entrada_salida(camera_id, entrada, salida)
@@ -772,7 +772,7 @@ def tiler_src_pad_buffer_probe(pad, info, u_data):
                     entrada, salida = get_entrada_salida(camera_id)
                     initial, last = get_initial_last(camera_id)
                     entrada, salida = service.aforo(
-                        header, aforo_info['endpoint'], (x, y), obj_meta.object_id, ids, camera_id, initial, last,
+                        header, aforo_info['endpoint'], (x, y), obj_meta.object_id, camera_id, initial, last,
                         entrada, salida, outside_area, reference_line, aforo_info['line_m_b'][0],
                         aforo_info['line_m_b'][1])
                     set_entrada_salida(camera_id, entrada, salida)
