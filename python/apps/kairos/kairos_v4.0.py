@@ -97,17 +97,17 @@ TILED_OUTPUT_WIDTH = 1920
 TILED_OUTPUT_HEIGHT = 1080
 GST_CAPS_FEATURES_NVMM = "memory:NVMM"
 
-#pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "RoadSign"]
+# pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "RoadSign"]
 
 # directorio actual
 CURRENT_DIR = os.getcwd()
 
-# Matriz de frames per second, Se utiliza en tiler
+# Matriz de frames per second, used in tiler
 fps_streams = {}
 
 
-#Stores actions to execute per camera, each camera can execute multiple services
-#the only condition is all are based on the same model
+# Stores actions to execute per camera, each camera can execute multiple services
+# the only condition is all are based on the same model
 global action
 action = {}
 
@@ -125,7 +125,7 @@ global token_file
 token_file = None
 
 # stores the configuration within all its process from reading, filtering
-# valiating values and add new parameters and format values. 
+# validating values and add new parameters and format values.
 global scfg
 scfg = {}
 
@@ -202,7 +202,7 @@ def get_initial_last(key_id):
         return initial_last_disappeared[key_id][0], initial_last_disappeared[key_id][1]
 
 
-def set_disappeared(key_id, value = None):
+def set_disappeared(key_id, value=None):
     global initial_last_disappeared
 
     if value is None:
@@ -233,16 +233,16 @@ def set_people_counting_counter(key_id, value):
         people_counting_counters.update({key_id: value})
 
 
-def set_people_counting(key_id, people_couting_data):
+def set_people_counting(key_id, people_counting_data):
     global people_distance_list
 
-    if not isinstance(people_couting_data, dict):
+    if not isinstance(people_counting_data, dict):
         service.log_error("'people_counting_data' parameter, most be a dictionary")
 
-    if not isinstance(people_couting_data['enabled'], bool) :
+    if not isinstance(people_counting_data['enabled'], bool):
         service.log_error("'people_counting_data' parameter, most be True or False")
 
-    people_distance_list[key_id] = people_couting_data
+    people_distance_list[key_id] = people_counting_data
     set_people_counting_counter(key_id, 0)
 
 
@@ -255,13 +255,15 @@ def set_social_distance(key_id, social_distance_data):
     if not isinstance(social_distance_data['enabled'], bool):
         service.log_error("'social_distance_data' parameter, most be True or False")
 
-    if not isinstance(int(float(social_distance_data['tolerated_distance'])), int) and int(float(social_distance_data['tolerated_distance'])) > 3:
-        service.log_error("'social_distance_data.tolarated_distance' parameter, most be and integer bigger than 3 pixels")
+    if not isinstance(int(float(social_distance_data['tolerated_distance'])), int) and \
+            int(float(social_distance_data['tolerated_distance'])) > 3:
+        service.log_error("'social_distance_data.tolarated_distance' parameter most be an integer bigger than 3 pixels")
     else:
         new_value = int(float(social_distance_data['tolerated_distance']))
         social_distance_data.update({'tolerated_distance': new_value})
 
-    if not isinstance(int(float(social_distance_data['persistence_time'])), int) and int(float(social_distance_data['persistence_time'])) > -1:
+    if not isinstance(int(float(social_distance_data['persistence_time'])), int) and \
+            int(float(social_distance_data['persistence_time'])) > -1:
         service.log_error("'social_distance_data.persistence_time' parameter, most be a positive integer/floater")
     else:
         new_value = int(float(social_distance_data['persistence_time'])) * 1000
@@ -286,7 +288,7 @@ def get_people_counting(key_id):
     return people_distance_list[key_id]
 
 
-def get_social_distance(key_id, key = None):
+def get_social_distance(key_id, key=None):
     global social_distance_list
 
     if key_id not in social_distance_list.keys():
@@ -358,7 +360,7 @@ def get_entrada_salida(key_id):
     return entradas_salidas[key_id][0], entradas_salidas[key_id][1]
 
 
-def validate_keys(service, data, list_of_keys):
+def validate_keys(service_name, data, list_of_keys):
 
     if not isinstance(data, dict):
         service.log_error("'data' parameter, most be a dictionary")
@@ -371,7 +373,7 @@ def validate_keys(service, data, list_of_keys):
 
     for key in list_of_keys:
         if key not in data.keys():
-            service.log_error("'{}' missing parameter {}, in config file".format(service, key))
+            service.log_error("'{}' missing parameter {}, in config file".format(service_name, key))
 
     return True
 
@@ -387,7 +389,7 @@ def get_dictionary_from_list(srv_id):
     com.log_error("Unable to find the key: "+srv_id+" in the data")
 
 
-def validate_aforo_values(data, srv_id, service_name):
+def validate_aforo_values(srv_id):
     aforo_dict = get_dictionary_from_list(srv_id)['aforo']
 
     if 'endpoint' not in aforo_dict:
@@ -433,17 +435,18 @@ def validate_aforo_values(data, srv_id, service_name):
         if 'line_width' not in aforo_dict['reference_line']:
             default_width = 3
             aforo_dict['reference_line']['line_width'] = default_width
-            com.log_debug("Parameter 'line_color' was not defined. Using default value: "+str(default_width))
+            com.log_debug("Parameter 'line_color' was not defined. Using default value: {}".format(default_width))
 
         if 'line_color' not in aforo_dict['reference_line']:
             default_color = [222, 221, 100, 99]
             aforo_dict['reference_line']['line_color'] = default_color
-            com.log_debug("Parameter 'line_color' was not defined. Using default value: "+default_color)
+            com.log_debug("Parameter 'line_color' was not defined. Using default value: {}".format(default_color))
 
     for color in aforo_dict['reference_line']['line_color']:
+        color_int = -1
         try:
             color_int = int(color)
-        except Exception as e:
+        except ValueError:
             service.log_error("color values should be integers within 0-255")
         if color_int < 0 or color_int > 255:
             service.log_error("color values should be integers within 0-255")
@@ -453,7 +456,8 @@ def validate_aforo_values(data, srv_id, service_name):
             try:
                 element_int = int(aforo_dict['reference_line']['area_of_interest'][key])
             except ValueError:
-                com.log_error("Value of parameter: '{}' should be integer: {}".format(key),
+                com.log_error("Value of parameter: '{}' should be integer: {}".
+                              format(key, aforo_dict['reference_line']['area_of_interest'][key]),
                               aforo_dict['reference_line']['area_of_interest'][key])
             if element_int < 0:
                 com.log_error("Value of parameter: '{}' should be integer positive - {}".format(key, element_int))
@@ -465,7 +469,6 @@ def validate_aforo_values(data, srv_id, service_name):
 
 def validate_socialdist_values(data):
 
-    #print('print1', data, '...', ['enabled', 'tolerated_distance', 'persistence_time'])
     if not validate_keys('video-socialDistancing', data, ['enabled', 'tolerated_distance', 'persistence_time']):
         return False
 
@@ -477,7 +480,7 @@ def validate_socialdist_values(data):
     else:
         data.update({'tolerated_distance': float(data['tolerated_distance'])})
 
-    if not isinstance(float(data['persistence_time']), float)  and float(data['persistence_time']) > 0:
+    if not isinstance(float(data['persistence_time']), float) and float(data['persistence_time']) > 0:
         service.log_error("persistence_time element, most a be positive integer/floater")
     else:
         data.update({'persistence_time': float(data['persistence_time'])})
@@ -490,18 +493,17 @@ def validate_people_counting_values(data):
     validate_keys('people_counting', data, ['enabled'])
 
     if not isinstance(data['enabled'], bool):
-        service.log_error("'people_counting.' parameter, most be True or False, current value: {}".format(data['enabled']))
+        service.log_error("'people_counting.' parameter, most be True or False. Current: {}".format(data['enabled']))
 
     return True
 
 
-def set_aforo(scfg, srv_camera_id, service_name):
-    # use aforo_list for aforo
+def set_aforo(input_scfg, srv_camera_id, service_name):
     global aforo_list
 
     camera_mac = srv_camera_id[7:24]
     data = {}
-    for service_definition in scfg[camera_mac]['services']:
+    for service_definition in input_scfg[camera_mac]['services']:
         if srv_camera_id in service_definition and service_name in service_definition[srv_camera_id]:
             data = service_definition[srv_camera_id][service_name]
 
@@ -560,7 +562,7 @@ def set_aforo(scfg, srv_camera_id, service_name):
         aforo_list[camera_mac].update({'line_m_b': [m, b]})
         aforo_list[camera_mac]['reference_line']['area_of_interest'].update(
             {'area_rectangle': [topx, topy, width, height]})
-        aforo_list[camera_mac]['endpoint'] = scfg[camera_mac]['server_url']+aforo_list[camera_mac]['endpoint']
+        aforo_list[camera_mac]['endpoint'] = input_scfg[camera_mac]['server_url']+aforo_list[camera_mac]['endpoint']
     else:
         service.log_error("Missing configuration parameters for 'aforo' service")
 
@@ -904,7 +906,7 @@ def set_action(srv_camera_id, service_name):
 
         if service_name == 'aforo':
             if service_name in com.SERVICE_DEFINITION[com.SERVICES[service_name]]:
-                validate_aforo_values(scfg, srv_camera_id, service_name)
+                validate_aforo_values(srv_camera_id)
                 set_aforo(scfg, srv_camera_id, service_name)
                 set_initial_last_disappeared(srv_camera_id[7:24])
                 execute_actions = True
