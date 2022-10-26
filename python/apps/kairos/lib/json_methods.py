@@ -1,6 +1,6 @@
 import time
 import requests
-import codecs, json
+import json
 from datetime import datetime, timedelta
 
 

@@ -1,4 +1,4 @@
-import codecs, json
+import json
 import lib.common as com
 import lib.validate as validate
 import lib.json_methods as jsm
@@ -30,7 +30,7 @@ def get_server_info_from_server(header, abort_if_exception = True, quit_program=
                                  format(response.text), quit_program)
 
 
-def get_server_info_from_file(file_path, abort_if_exception = True):
+def get_server_info_from_file(file_path, abort_if_exception=True):
     if com.file_exists(file_path):
         com.log_debug('Using local {} to get the service config'.format(file_path))
         with open(file_path) as json_file_handler:

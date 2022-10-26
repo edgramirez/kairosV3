@@ -27,7 +27,7 @@ except KeyError:
     log_error('\nUnable to read environment variable "TOKEN_FILE"  -- Set the variable in $HOME/.bashrc')
 
 
-def log_error(msg, _quit = True):
+def log_error(msg, _quit=True):
     print("\n")
     print("-- PARAMETER ERROR --\n"*2)
     print(" %s " % msg)
@@ -59,7 +59,7 @@ def create_data_dir(path_str):
     return True
 
 
-def delete_tree(path_str, match_pattern = None):
+def delete_tree(path_str, match_pattern=None):
     if dir_exists(path_str):
         if match_pattern is not None and path_str[0:len(match_pattern)] != match_pattern:
             log_error("Unable to delete directory: {}, path must start with: {}".format(path_str, match_pattern))
@@ -76,7 +76,7 @@ def file_exists(file_name):
     try:
         with open(file_name) as f:
             return file_name
-    except OSError as e:
+    except OSError:
         return False
 
 
@@ -150,7 +150,7 @@ def get_local_interfaces_and_ips():
     bytes_out = namestr[:max_bytes_out]
     ip_dict = {}
     for i in range(0, max_bytes_out, 40):
-        name = namestr[ i: i+16 ].split(FILL_CHAR, 1)[0]
+        name = namestr[i: i+16].split(FILL_CHAR, 1)[0]
         name = name.decode('utf-8')
         ip_bytes = namestr[i+20:i+24]
         full_addr = []

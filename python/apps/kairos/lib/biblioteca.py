@@ -23,7 +23,7 @@ def compare_against_encoding_list(face_encoding, known_face_encodings_list, tole
 
         if True in matches:
             # si hay un True en la lista entonces hay un match, get the indexes of these matches
-            indexes = [ index for index, item in enumerate(matches) if item]
+            indexes = [index for index, item in enumerate(matches) if item]
 
             # crear una lista dinamica con los indices que hicieron match
             only_true_known_face_encodings = [known_face_encodings_list[ind] for ind in indexes]
@@ -43,11 +43,11 @@ def compare_against_encoding_list(face_encoding, known_face_encodings_list, tole
 
 
 def lookup_known_face(face_encoding, known_face_encodings_list, known_face_metadata, tolerated_difference=0.59):
-    '''
+    """
     - See if this face was already stored in our list of faces
     - tolerated_difference: is the parameter that indicates how much 2 faces are similar, 0 is the best match and 1
     means are completely different
-    '''
+    """
     best_match, distance = compare_against_encoding_list(face_encoding, known_face_encodings_list)
 
     if best_match:
@@ -57,9 +57,9 @@ def lookup_known_face(face_encoding, known_face_encodings_list, known_face_metad
 
 
 def encode_known_faces_from_images_in_dir(image_path, output_file, image_group=None, append=False):
-    '''
+    """
     Esta funccion codifica los rostros encotrados en las imagenes presentes en el diretorio especificado
-    '''
+    """
     if com.dir_exists(image_path) is False:
         com.log_error("Directory '{}' does not exist".format(image_path))
 
